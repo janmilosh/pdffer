@@ -15,9 +15,13 @@ class FormLinks:
 
     def _make_soup(text):
         soup = BeautifulSoup(text)
-        print(soup.prettify())
-        pdb.trace()
+        # print(soup.prettify())
+        # pdb.set_trace()
         return soup
+
+    def _parse_soup(soup):
+        links_list = []
+        return links_list
 
 
 
