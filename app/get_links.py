@@ -1,5 +1,6 @@
 #!/usr/bin/env python
-import os 
+import os
+import pdb 
 
 from bs4 import BeautifulSoup
 import requests
@@ -15,6 +16,7 @@ class FormLinks:
     def _make_soup(text):
         soup = BeautifulSoup(text)
         print(soup.prettify())
+        pdb.trace()
         return soup
 
 
