@@ -29,11 +29,11 @@ class FormLinks:
 
     def _find_all_links(self, soup):
         all_links = soup.find_all('a')
-        hrefs = []
+        hrefs = set()
         for link in all_links:
             link = link.get('href')
             if link != None:
-                hrefs.append(link)
+                hrefs.add(link)
         return hrefs
 
     def _find_all_document_links(self, soup):
@@ -44,7 +44,7 @@ class FormLinks:
         return (datetime.datetime.utcnow() - datetime.timedelta(days=offset_in_days)) \
                     .strftime('%a, %d %b %Y %H:%M:%S GMT')
 
-    def _get_document(self, doc_path, days_offset):
+    def _make_document_request(self, doc_path, days_offset):
         url = os.path.join(self.base_url, doc_path)
         last_modified = self._make_time_string_with_days_offset(days_offset)
         
@@ -52,17 +52,15 @@ class FormLinks:
  
         # Stream=true only pulls headers, not full document
         with closing(requests.get(url, stream=True, headers=headers)) as response:
-            # print('last_modified', last_modified)
-            # print('response.status_code', response.status_code)
-            # print('requests.codes.not_modified', requests.codes.not_modified)
+            print('Getting:', url)
 
             if response.status_code == requests.codes.not_modified:
                 print('Document has not been modified since {0}, {1}'.format(last_modified,response.status_code))
-            
+                
             elif response.status_code == requests.codes.ok:
-                # with open('doc.pdf', 'wb') as save_file:
-                #     for chunk in response.iter_content(1024):
-                #         save_file.write(chunk)
+                with open('doc.pdf', 'wb') as save_file:
+                    for chunk in response.iter_content(1024):
+                        save_file.write(chunk)
                 print('Document was modified on {0}, {1}'.format(response.headers['last-modified'], response.status_code))
             
             else:

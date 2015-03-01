@@ -38,32 +38,46 @@ class ExpressScriptsScrapingTest(unittest.TestCase):
 
 
 class ExpressScriptsFormRequestsTest(unittest.TestCase):    
-
-    def setUp(self):
-        self.fl = FormLinks()
-        self.doc_links = self.fl.main()
-        self.time_string = self.fl._make_time_string_with_days_offset(550)
-        print('The time string is: ', self.time_string)
-        
-    def test_main_method(self):
-        for doc_link in self.doc_links:
-            self.assertTrue(doc_link[0:5] == 'docs/' and doc_link[-3:] == 'pdf')
-
-    def test_time_string(self):        
-        self.assertTrue(type(self.time_string) == str)
-        self.assertTrue(len(self.time_string) == 29)
-
-    def test_make_form_request_to_get_headers(self):
-        for link in self.doc_links:
-            response = self.fl._get_document(link, 550)
-            status_code = response.status_code
-            # self.assertTrue(status_code == 200 or status_code == 304)
-            # pdb.set_trace()
-
     
+    @classmethod
+    def setUp(cls):
+        cls.fl = FormLinks()
+        cls.doc_links = cls.fl.main()
+        cls.time_string = cls.fl._make_time_string_with_days_offset(550)
+        cls.responses = []
 
+        for link in cls.doc_links:
+            response = cls.fl._make_document_request(link, 1000)
+            cls.responses.append(response)
+    
+    def test_main_method(cls):
+        for doc_link in cls.doc_links:
+            cls.assertTrue(doc_link[0:5] == 'docs/' and doc_link[-3:] == 'pdf')
 
+    def test_time_string(cls):        
+        cls.assertTrue(type(cls.time_string) == str)
+        cls.assertTrue(len(cls.time_string) == 29)
 
+    def test_make_form_request_to_get_headers(cls):
+        for response in cls.responses:
+            status_code = response.status_code
+            cls.assertTrue(status_code == 200 or status_code == 304 or status_code == 404)
+
+    def test_create_dict_for_doc_links(cls):
+        docs = {}
+        for response in cls.responses:
+            form_name = response.url.split('/')[-1].split('.')[0]
+            try:
+                last_modified = response.headers['last-modified']
+            except:
+                last_modified = ''
+            try:
+                etag = response.headers['etag']
+            except:
+                etag = ''
+
+            docs[form_name] = (last_modified, response.url, response.status_code, etag)
+            print(form_name, docs[form_name])
 
 
 if __name__ == '__main__':
