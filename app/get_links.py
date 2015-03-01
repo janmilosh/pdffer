@@ -14,12 +14,23 @@ class FormLinks:
         self.base_url = 'https://www.express-scripts.com/services/physicians/medcopa'
         self.page_route = 'index.shtml'
 
-    def main(self):
+    def main(self, offset_in_days):
+        links = self._prepare_links()
+        return self._prepare_responses(links, offset_in_days)        
+
+    def _prepare_links(self):
         url = os.path.join(self.base_url, self.page_route)
         page = self._get_links_page(url)
         soup = self._make_soup(page.text)
         return self._find_all_document_links(soup)
-    
+
+    def _prepare_responses(self, links, offset_in_days):
+        responses = []
+        for link in links:
+            response = self._make_document_request(link, offset_in_days)
+            responses.append(response)
+        return self._create_dict_for_doc_links(responses) 
+
     def _get_links_page(self, url):
         return requests.get(url)
 
@@ -76,7 +87,7 @@ class FormLinks:
             except:
                 last_modified = ''
             try:
-                etag = response.headers['etag']
+                etag = response.headers['etag'].replace('"', '')
             except:
                 etag = ''
 
@@ -86,5 +97,5 @@ class FormLinks:
 
 
 if __name__=='__main__':
-    self.main()
+    self.main(1000)
 

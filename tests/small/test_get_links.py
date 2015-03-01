@@ -1,7 +1,7 @@
 import datetime, os, unittest
-
 import requests
 import pdb
+
 import bs4
 
 from app.get_links import FormLinks
@@ -42,31 +42,38 @@ class ExpressScriptsFormRequestsTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.fl = FormLinks()
-        cls.doc_links = cls.fl.main()
-        cls.time_string = cls.fl._make_time_string_with_days_offset(550)
+        cls.doc_links = cls.fl._prepare_links()
+        
         cls.responses = []
 
         for link in cls.doc_links:
             response = cls.fl._make_document_request(link, 1000)
             cls.responses.append(response)
     
-    def test_main_method(cls):
+    def test_prepare_links(cls):
         for doc_link in cls.doc_links:
             cls.assertTrue(doc_link[0:5] == 'docs/' and doc_link[-3:] == 'pdf')
 
-    def test_time_string(cls):        
-        cls.assertTrue(type(cls.time_string) == str)
-        cls.assertTrue(len(cls.time_string) == 29)
+    def test_make_time_string(cls):
+        time_string = cls.fl._make_time_string_with_days_offset(1000)        
+        cls.assertTrue(type(time_string) == str)
+        cls.assertTrue(len(time_string) == 29)
 
-    def test_make_form_request_to_get_headers(cls):
+    def test_make_document_request(cls):
         for response in cls.responses:
             status_code = response.status_code
             cls.assertTrue(status_code == 200 or status_code == 304 or status_code == 404)
 
     def test_create_dict_for_doc_links(cls):
-        docs = cls.fl._create_dict_for_doc_links(cls.responses)
-        cls.assertIs(type(docs), dict)
-        cls.assertGreater(len(docs), 0)
+        docs_dict = cls.fl._create_dict_for_doc_links(cls.responses)
+        cls.assertIs(type(docs_dict), dict)
+        cls.assertGreater(len(docs_dict), 0)
+
+    @unittest.skip('Test of Main method, no need to run this every time.')
+    def test_main_method(cls):
+        docs_dict = cls.fl.main(1000)
+        cls.assertIs(type(docs_dict), dict)
+        cls.assertGreater(len(docs_dict), 0)
 
 
 if __name__ == '__main__':
