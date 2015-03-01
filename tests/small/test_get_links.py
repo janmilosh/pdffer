@@ -1,7 +1,7 @@
 import datetime, os, unittest
+
 import requests
 import pdb
-
 import bs4
 
 from app.get_links import FormLinks
@@ -40,7 +40,7 @@ class ExpressScriptsScrapingTest(unittest.TestCase):
 class ExpressScriptsFormRequestsTest(unittest.TestCase):    
     
     @classmethod
-    def setUp(cls):
+    def setUpClass(cls):
         cls.fl = FormLinks()
         cls.doc_links = cls.fl.main()
         cls.time_string = cls.fl._make_time_string_with_days_offset(550)
@@ -64,20 +64,9 @@ class ExpressScriptsFormRequestsTest(unittest.TestCase):
             cls.assertTrue(status_code == 200 or status_code == 304 or status_code == 404)
 
     def test_create_dict_for_doc_links(cls):
-        docs = {}
-        for response in cls.responses:
-            form_name = response.url.split('/')[-1].split('.')[0]
-            try:
-                last_modified = response.headers['last-modified']
-            except:
-                last_modified = ''
-            try:
-                etag = response.headers['etag']
-            except:
-                etag = ''
-
-            docs[form_name] = (last_modified, response.url, response.status_code, etag)
-            print(form_name, docs[form_name])
+        docs = cls.fl._create_dict_for_doc_links(cls.responses)
+        cls.assertIs(type(docs), dict)
+        cls.assertGreater(len(docs), 0)
 
 
 if __name__ == '__main__':

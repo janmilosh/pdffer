@@ -67,6 +67,23 @@ class FormLinks:
                 print("There was a {0} error on the response".format(response.status_code))
         return response
 
+    def _create_dict_for_doc_links(self, responses):
+        docs_dict = {}
+        for response in responses:
+            form_name = response.url.split('/')[-1].split('.')[0]
+            try:
+                last_modified = response.headers['last-modified']
+            except:
+                last_modified = ''
+            try:
+                etag = response.headers['etag']
+            except:
+                etag = ''
+
+            docs_dict[form_name] = (last_modified, response.url, response.status_code, etag)
+            print(form_name, docs_dict[form_name])
+        return docs_dict
+
 
 if __name__=='__main__':
     self.main()
