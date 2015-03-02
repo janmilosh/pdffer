@@ -4,17 +4,17 @@ import pdb
 
 import bs4
 
-from app.get_links import FormLinks
+from app.get_express_scripts_pdfs import ExpressScriptsPDF
 
 
 class ExpressScriptsScrapingTest(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.fl = FormLinks()
-        url = os.path.join(cls.fl.base_url, cls.fl.page_route)
-        cls.response = cls.fl._get_links_page(url)
-        cls.soup_object = cls.fl._make_soup(cls.response.text)
+        cls.es = ExpressScriptsPDF()
+        url = os.path.join(cls.es.base_url, cls.es.page_route)
+        cls.response = cls.es._get_links_page(url)
+        cls.soup_object = cls.es._make_soup(cls.response.text)
 
     def test_makes_successful_get_request_to_express_scripts(cls):
         cls.assertEqual(cls.response.status_code, 200)
@@ -26,13 +26,13 @@ class ExpressScriptsScrapingTest(unittest.TestCase):
         cls.assertIsInstance(cls.soup_object, bs4.BeautifulSoup)
 
     def test_find_all_links_in_soup(cls):
-        links = cls.fl._find_all_links(cls.soup_object)
+        links = cls.es._find_all_links(cls.soup_object)
         cls.assertTrue(len(links) > 0)
         for link in links:
             cls.assertTrue(type(link) == str)
 
     def test_find_all_document_links_in_list_of_links(cls):
-        doc_links = cls.fl._find_all_document_links(cls.soup_object)
+        doc_links = cls.es._find_all_document_links(cls.soup_object)
         for doc_link in doc_links:
             cls.assertTrue(doc_link[0:5] == 'docs/' and doc_link[-3:] == 'pdf')
 
@@ -41,13 +41,13 @@ class ExpressScriptsFormRequestsTest(unittest.TestCase):
     
     @classmethod
     def setUpClass(cls):
-        cls.fl = FormLinks()
-        cls.doc_links = cls.fl._prepare_links()
+        cls.es = ExpressScriptsPDF()
+        cls.doc_links = cls.es._prepare_links()
         
         cls.responses = []
 
         for link in cls.doc_links:
-            response = cls.fl._make_document_request(link, 1000)
+            response = cls.es._make_document_request(link, 1000)
             cls.responses.append(response)
     
     def test_prepare_links(cls):
@@ -55,7 +55,7 @@ class ExpressScriptsFormRequestsTest(unittest.TestCase):
             cls.assertTrue(doc_link[0:5] == 'docs/' and doc_link[-3:] == 'pdf')
 
     def test_make_time_string(cls):
-        time_string = cls.fl._make_time_string_with_days_offset(1000)        
+        time_string = cls.es._make_time_string_with_days_offset(1000)        
         cls.assertTrue(type(time_string) == str)
         cls.assertTrue(len(time_string) == 29)
 
@@ -65,13 +65,13 @@ class ExpressScriptsFormRequestsTest(unittest.TestCase):
             cls.assertTrue(status_code == 200 or status_code == 304 or status_code == 404)
 
     def test_create_dict_for_doc_links(cls):
-        docs_dict = cls.fl._create_dict_for_doc_links(cls.responses)
+        docs_dict = cls.es._create_dict_for_doc_links(cls.responses)
         cls.assertIs(type(docs_dict), dict)
         cls.assertGreater(len(docs_dict), 0)
 
     @unittest.skip('Test of Main method, no need to run this every time.')
     def test_main_method(cls):
-        docs_dict = cls.fl.main(1000)
+        docs_dict = cls.es.main(1000)
         cls.assertIs(type(docs_dict), dict)
         cls.assertGreater(len(docs_dict), 0)
 

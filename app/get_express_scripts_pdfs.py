@@ -7,7 +7,7 @@ from bs4 import BeautifulSoup
 import requests
 
 
-class FormLinks:
+class ExpressScriptsPDF:
     def __init__(self):
         self.root_dir = os.getcwd()
         self.form_links = []
@@ -69,7 +69,8 @@ class FormLinks:
                 print('Document has not been modified since {0}, {1}'.format(last_modified,response.status_code))
                 
             elif response.status_code == requests.codes.ok:
-                with open('doc.pdf', 'wb') as save_file:
+                save_file_path = os.path.join(self.root_dir, 'pdfs', url.split('/')[-1])
+                with open(save_file_path, 'wb') as save_file:
                     for chunk in response.iter_content(1024):
                         save_file.write(chunk)
                 print('Document was modified on {0}, {1}'.format(response.headers['last-modified'], response.status_code))
@@ -97,6 +98,6 @@ class FormLinks:
 
 
 if __name__=='__main__':
-    fl = FormLinks()
-    fl.main(1000)
+    es = ExpressScriptsPDF()
+    es.main(1000)
 
