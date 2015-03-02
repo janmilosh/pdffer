@@ -97,5 +97,6 @@ class FormLinks:
 
 
 if __name__=='__main__':
-    self.main(1000)
+    fl = FormLinks()
+    fl.main(1000)
 
