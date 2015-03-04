@@ -11,7 +11,6 @@ class ExpressScriptsPDF:
     def __init__(self):
         self.root_dir = os.getcwd()
         self.pdf_directory_name = 'pdfs'
-        self.form_links = []
         self.base_url = 'https://www.express-scripts.com/services/physicians/medcopa'
         self.page_route = 'index.shtml'
 
