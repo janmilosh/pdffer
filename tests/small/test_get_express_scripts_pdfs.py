@@ -26,13 +26,13 @@ class ExpressScriptsScrapingTest(unittest.TestCase):
         cls.assertIsInstance(cls.soup_object, bs4.BeautifulSoup)
 
     def test_find_all_links_in_soup(cls):
-        links = cls.es._find_all_links(cls.soup_object)
+        links = cls.es._find_all_links_in_soup(cls.soup_object)
         cls.assertTrue(len(links) > 0)
         for link in links:
             cls.assertTrue(type(link) == str)
 
     def test_find_all_document_links_in_list_of_links(cls):
-        doc_links = cls.es._find_all_document_links(cls.soup_object)
+        doc_links = cls.es._return_only_document_links(cls.soup_object)
         for doc_link in doc_links:
             cls.assertTrue(doc_link[0:5] == 'docs/' and doc_link[-3:] == 'pdf')
 
@@ -46,7 +46,7 @@ class ExpressScriptsFormRequestsTest(unittest.TestCase):
         url = os.path.join(cls.es.base_url, cls.es.page_route)
         page = cls.es._request_links_page(url)
         soup = cls.es._make_soup(page.text)
-        cls.doc_links =  cls.es._find_all_document_links(soup)
+        cls.doc_links =  cls.es._return_only_document_links(soup)
         
         cls.responses = []
 

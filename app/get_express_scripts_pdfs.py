@@ -19,7 +19,7 @@ class ExpressScriptsPDF:
         url = os.path.join(self.base_url, self.page_route)
         page = self._request_links_page(url)
         soup = self._make_soup(page.text)
-        links =  self._find_all_document_links(soup)
+        links =  self._return_only_document_links(soup)
 
         responses = []
         for link in links:
@@ -36,7 +36,7 @@ class ExpressScriptsPDF:
         soup = BeautifulSoup(text)
         return soup
 
-    def _find_all_links(self, soup):
+    def _find_all_links_in_soup(self, soup):
         all_links = soup.find_all('a')
         hrefs = set()
         for link in all_links:
@@ -45,8 +45,8 @@ class ExpressScriptsPDF:
                 hrefs.add(link)
         return hrefs
 
-    def _find_all_document_links(self, soup):
-        hrefs = self._find_all_links(soup)
+    def _return_only_document_links(self, soup):
+        hrefs = self._find_all_links_in_soup(soup)
         return [href for href in hrefs if href[0:5] == 'docs/'] 
     
     def _request_document(self, doc_path, days_offset):
