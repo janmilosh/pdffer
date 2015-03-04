@@ -13,7 +13,7 @@ class ExpressScriptsScrapingTest(unittest.TestCase):
     def setUpClass(cls):
         cls.es = ExpressScriptsPDF()
         url = os.path.join(cls.es.base_url, cls.es.page_route)
-        cls.response = cls.es._get_links_page(url)
+        cls.response = cls.es._request_links_page(url)
         cls.soup_object = cls.es._make_soup(cls.response.text)
 
     def test_makes_successful_get_request_to_express_scripts(cls):
@@ -42,12 +42,16 @@ class ExpressScriptsFormRequestsTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.es = ExpressScriptsPDF()
-        cls.doc_links = cls.es._prepare_links()
+
+        url = os.path.join(cls.es.base_url, cls.es.page_route)
+        page = cls.es._request_links_page(url)
+        soup = cls.es._make_soup(page.text)
+        cls.doc_links =  cls.es._find_all_document_links(soup)
         
         cls.responses = []
 
         for link in cls.doc_links:
-            response = cls.es._make_document_request(link, 1000)
+            response = cls.es._request_document(link, 1000)
             cls.responses.append(response)
     
     def test_prepare_links(cls):
