@@ -5,6 +5,7 @@ import pdb
 import bs4
 
 from app.get_express_scripts_pdfs import ExpressScriptsPDF
+from app.helpers.universal import Helpers
 
 
 class ExpressScriptsScrapingTest(unittest.TestCase):
@@ -12,9 +13,10 @@ class ExpressScriptsScrapingTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.es = ExpressScriptsPDF()
+        cls.helpers = Helpers('pdfs')
         url = os.path.join(cls.es.base_url, cls.es.page_route)
-        cls.response = cls.es._request_links_page(url)
-        cls.soup_object = cls.es._make_soup(cls.response.text)
+        cls.response = cls.helpers._request_links_page(url)
+        cls.soup_object = cls.helpers._make_soup(cls.response.text)
 
     def test_makes_successful_get_request_to_express_scripts(cls):
         cls.assertEqual(cls.response.status_code, 200)
@@ -42,16 +44,17 @@ class ExpressScriptsFormRequestsTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.es = ExpressScriptsPDF()
+        cls.helpers = Helpers('pdfs')
 
         url = os.path.join(cls.es.base_url, cls.es.page_route)
-        page = cls.es._request_links_page(url)
-        soup = cls.es._make_soup(page.text)
+        page = cls.helpers._request_links_page(url)
+        soup = cls.helpers._make_soup(page.text)
         cls.doc_links =  cls.es._return_only_document_links(soup)
         
         cls.responses = []
 
         for link in cls.doc_links:
-            response = cls.es._request_document(link, 1000)
+            response = cls.helpers._request_document(cls.es.base_url, link, 1000)
             cls.responses.append(response)
     
     def test_prepare_links(cls):
@@ -59,7 +62,7 @@ class ExpressScriptsFormRequestsTest(unittest.TestCase):
             cls.assertTrue(doc_link[0:5] == 'docs/' and doc_link[-3:] == 'pdf')
 
     def test_make_time_string(cls):
-        time_string = cls.es._make_time_string_with_days_offset(1000)        
+        time_string = cls.helpers._make_time_string_with_days_offset(1000)        
         cls.assertTrue(type(time_string) == str)
         cls.assertTrue(len(time_string) == 29)
 
