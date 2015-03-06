@@ -11,36 +11,24 @@ from app.helpers.universal import Helpers
 
 class ExpressScriptsPDF:
     def __init__(self):
-        helpers = Helpers('pdfs')
+        self.helpers = Helpers('pdfs')
         self.base_url = 'https://www.express-scripts.com/services/physicians/medcopa'
         self.page_route = 'index.shtml'
 
     def main(self, offset_in_days):
         url = os.path.join(self.base_url, self.page_route)
-        page = helpers._request_links_page(url)
-        soup = helpers._make_soup(page.text)
-        links =  self._return_only_document_links(soup)
+        page = self.helpers._request_links_page(url)
+        soup = self.helpers._make_soup(page.text)
+
+        links =  self.helpers._return_only_pdf_links(soup)
 
         responses = []
         for link in links:
-            response = helpers._request_document(base_url, link, offset_in_days)
+            response = self.helpers._request_document(self.base_url, link, offset_in_days)
             responses.append(response)
         docs_dict = self._create_dict_for_doc_links(responses)
         print(docs_dict)
         return docs_dict    
-
-    def _find_all_links_in_soup(self, soup):
-        all_links = soup.find_all('a')
-        hrefs = set()
-        for link in all_links:
-            link = link.get('href')
-            if link != None:
-                hrefs.add(link)
-        return hrefs
-
-    def _return_only_document_links(self, soup):
-        hrefs = self._find_all_links_in_soup(soup)
-        return [href for href in hrefs if href[0:5] == 'docs/'] 
     
     def _create_form_name(self, response):
         return response.url.split('/')[-1].split('.')[0]

@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import datetime, os
+import datetime, os, re
 from contextlib import closing
 import pdb 
 
@@ -18,6 +18,19 @@ class Helpers:
     def _make_soup(self, text):
         soup = BeautifulSoup(text)
         return soup
+
+    def _return_only_pdf_links(self, soup):
+        hrefs = self._find_all_links_in_soup(soup)
+        return [href for href in hrefs if re.match('.*\.pdf$', href)] 
+
+    def _find_all_links_in_soup(self, soup):
+        all_links = soup.find_all('a')
+        hrefs = set()
+        for link in all_links:
+            link = link.get('href')
+            if link != None:
+                hrefs.add(link)
+        return hrefs
 
     def _request_document(self, base_url, doc_path, days_offset):
         request_parameters = self._make_request_parameters(base_url, doc_path, days_offset)
